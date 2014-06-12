@@ -5,27 +5,6 @@ from pprint import pprint
 
 from cashmoney import Bank, CashFlow, Manager 
 
-#DEFAULT_CONFIG = """---
-
-#name: Sarat Tallamraju
-#banks:
-    #wells_fargo: 
-        #name: wells_fargo_checking
-        #min_balance: 100.0
-
-    #chase:
-        #name: chase_checking
-        #min_balance: 100.0
-        
-#cashflows: 
-    #wells_fargo_checking:
-        #livemagic:
-            #name: lm_paycheck
-            #amount: 2500.00
-            #stime: 1380504706.865231
-            #period: 2
-
-#..."""
 
 DEFAULT_CONFIG = "default.yaml"
 ACCOUNTS_DIR = "accounts/"
