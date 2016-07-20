@@ -1,5 +1,5 @@
 from collections import defaultdict
-from cashmoney.security import Security
+from cashmoney.security import USD
 from cashmoney import timer
 
 
@@ -41,7 +41,7 @@ class BankAccount(Account):
 
     def __init__(self, name, min_balance, balance):
         super(BankAccount, self).__init__(name=name)
-        self._security_type = Security("USD")
+        self._security_type = USD
         self._lot.add_security(self._security_type, 0, timer.time(), balance)
         self.minimum_balance = min_balance
 

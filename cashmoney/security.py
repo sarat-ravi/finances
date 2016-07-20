@@ -11,3 +11,5 @@ class Security(object):
     def __repr__(self):
         return "Security(%s)" %(self._name)
 
+
+USD = Security("USD")
