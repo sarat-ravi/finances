@@ -33,6 +33,12 @@ class Amount(object):
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def __repr__(self):
+        if self._security == USD:
+            return "${}".format(self._amount)
+
+        return "[{} {}]".format(self._amount, self._security)
+
     def __hash__(self):
         return hash((self._security, self._amount))
 
