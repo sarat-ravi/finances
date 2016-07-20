@@ -22,7 +22,7 @@ USD = Security("USD")
 
 class Amount(object):
 
-    def __init__(self, security, amount):
+    def __init__(self, amount, security):
         super(Amount, self).__init__()
         self._security = security
         self._amount = amount
@@ -40,6 +40,6 @@ class Amount(object):
         if self._security != other_amount._security:
             raise ValueError("{} can't be added to {}".format(other_amount, self))
 
-        return Amount(self._security, self._amount + other_amount._amount)
+        return Amount(self._amount + other_amount._amount, self._security)
 
 

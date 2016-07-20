@@ -30,20 +30,20 @@ class TestSecurities:
         assert_equals(len(securities_set), 2)
 
     def test_amount_addition(self):
-        one = Amount(USD, 1)
-        ten = Amount(USD, 10)
-        hundred = Amount(USD, 100)
-        thousand = Amount(USD, 1000)
+        one = Amount(1, USD)
+        ten = Amount(10, USD)
+        hundred = Amount(100, USD)
+        thousand = Amount(1000, USD)
 
-        assert_equals(one + ten + hundred + thousand, Amount(USD, 1111))
+        assert_equals(one + ten + hundred + thousand, Amount(1111, USD))
 
     def test_amount_equality(self):
-        assert_equals(Amount(USD, 10), Amount(USD, 10))
-        assert_not_equals(Amount(USD, 10), Amount(USD, 20))
+        assert_equals(Amount(10, USD), Amount(10, USD))
+        assert_not_equals(Amount(10, USD), Amount(20, USD))
 
     def test_amount_hash(self):
         amount_set = set()
-        amount_set.add(Amount(USD, 10))
-        amount_set.add(Amount(USD, 10))
+        amount_set.add(Amount(10, USD))
+        amount_set.add(Amount(10, USD))
 
         assert_equals(len(amount_set), 1)
