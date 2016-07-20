@@ -1,5 +1,6 @@
 from collections import defaultdict
 from cashmoney.security import Security
+from cashmoney import timer
 
 
 class Lot(object):
@@ -30,7 +31,6 @@ class Account(object):
         self._name = name
         self._lot = Lot()
 
-
 class BrokerageAccount(Account):
 
     def __init__(self, name):
@@ -42,7 +42,7 @@ class BankAccount(Account):
     def __init__(self, name, min_balance, balance):
         super(BankAccount, self).__init__(name=name)
         self._security_type = Security("USD")
-        self._lot.add_security(self._security_type, 0, 0, balance)
+        self._lot.add_security(self._security_type, 0, timer.time(), balance)
         self.minimum_balance = min_balance
 
     @property
@@ -51,7 +51,7 @@ class BankAccount(Account):
 
     @balance.setter
     def balance(self, value):
-        self._lot.edit_lot(self._security_type, 0, 0, value)
+        self._lot.edit_lot(self._security_type, 0, timer.time(), value)
 
     def __repr__(self):
         return "BankAccount(%s, balance=%s)" %(self.name, str(self.balance))

@@ -3,7 +3,7 @@ import time
 import yaml
 from pprint import pprint
 
-from cashmoney import Bank, CashFlow, Manager 
+from cashmoney import BankAccount, timer, Security
 
 
 def main():
