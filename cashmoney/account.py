@@ -1,6 +1,7 @@
 from collections import defaultdict
-from cashmoney.security import USD
+from cashmoney.security import USD, Amount
 from cashmoney import timer
+
 
 
 class Lot(object):
