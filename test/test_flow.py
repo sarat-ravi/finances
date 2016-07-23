@@ -18,5 +18,30 @@ class TestFlows:
             if i in valid_range:
                 assert_equals(flow[i], amount)
             else:
-                assert_equals(flow[i], None)
+                assert_equals(flow[i], 0)
+
+    def test_adding_periodic_flows(self):
+        five_amount = Amount(5, USD)
+        ten_amount = Amount(10, USD)
+        fifteen_amount = Amount(15, USD)
+
+        fives = PeriodicFlow(name="fives", period=5, stime=3, etime=24, amount=five_amount)
+        tens = PeriodicFlow(name="tens", period=10, stime=3, etime=45, amount=ten_amount)
+
+        flow = fives + tens
+
+        fifteen_expected = (3, 13, 23)
+        five_expected = (8, 18)
+        ten_expected = (33, 43)
+
+        for i in xrange(-1, 50):
+            amount = flow[i]
+            if i in fifteen_expected:
+                assert_equals(amount, fifteen_amount)
+            elif i in five_expected:
+                assert_equals(amount, five_amount)
+            elif i in ten_expected:
+                assert_equals(amount, ten_amount)
+            else:
+                assert_equals(amount, 0)
 

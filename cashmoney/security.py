@@ -42,7 +42,13 @@ class Amount(object):
     def __hash__(self):
         return hash((self._security, self._amount))
 
+    def __radd__(self, other_value):
+        return self + other_value
+
     def __add__(self, other_amount):
+        if isinstance(other_amount, int) and other_amount == 0:
+            return Amount(self._amount, self._security)
+
         if self._security != other_amount._security:
             raise ValueError("{} can't be added to {}".format(other_amount, self))
 
