@@ -25,10 +25,8 @@ class TestFlows:
         ten_amount = Amount(10, USD)
         fifteen_amount = Amount(15, USD)
 
-        fives = PeriodicFlow(name="fives", period=5, stime=3, etime=24, amount=five_amount)
-        tens = PeriodicFlow(name="tens", period=10, stime=3, etime=45, amount=ten_amount)
-
-        flow = fives + tens
+        flow = PeriodicFlow(name="fives", period=5, stime=3, etime=24, amount=five_amount)
+        flow += PeriodicFlow(name="tens", period=10, stime=3, etime=45, amount=ten_amount)
 
         fifteen_expected = (3, 13, 23)
         five_expected = (8, 18)
