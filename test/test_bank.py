@@ -22,6 +22,26 @@ class TestBankAccount:
         assert_equals(b.balance(t+10), 100)
         assert_equals(b.balance(t+100), 100)
 
+    def test_withdrawal_time_travel(self):
+        t = 0
+        b = BankAccount('Wells Fargo', 100, 1000, t)
+
+        assert_equals(b.balance(t+4), 1000)
+        b.withdraw(t+1, 500)
+        assert_equals(b.balance(t+2), 500)
+        assert_equals(b.balance(t+3), 500)
+        assert_equals(b.balance(t+4), 500)
+
+    def test_deposit_time_travel(self):
+        t = 0
+        b = BankAccount('Wells Fargo', 100, 1000, t)
+
+        assert_equals(b.balance(t+4), 1000)
+        b.deposit(t+1, 500)
+        assert_equals(b.balance(t+2), 1500)
+        assert_equals(b.balance(t+3), 1500)
+        assert_equals(b.balance(t+4), 1500)
+        
     def test_basic_withdrawal(self):
         t = 0
         b = BankAccount('Wells Fargo', 100, 200, t)
