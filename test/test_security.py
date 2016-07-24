@@ -1,6 +1,7 @@
 from cashmoney import Security, USD, Amount
 from nose.tools import assert_equals, assert_not_equals
 
+
 class TestSecurities:
 
     def setup(self):
@@ -29,21 +30,3 @@ class TestSecurities:
         securities_set.add(Security("BTC"))
         assert_equals(len(securities_set), 2)
 
-    def test_amount_addition(self):
-        one = Amount(1, USD)
-        ten = Amount(10, USD)
-        hundred = Amount(100, USD)
-        thousand = Amount(1000, USD)
-
-        assert_equals(one + ten + hundred + thousand, Amount(1111, USD))
-
-    def test_amount_equality(self):
-        assert_equals(Amount(10, USD), Amount(10, USD))
-        assert_not_equals(Amount(10, USD), Amount(20, USD))
-
-    def test_amount_hash(self):
-        amount_set = set()
-        amount_set.add(Amount(10, USD))
-        amount_set.add(Amount(10, USD))
-
-        assert_equals(len(amount_set), 1)

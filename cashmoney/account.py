@@ -1,29 +1,4 @@
-from collections import defaultdict
-from cashmoney.security import USD, Amount
-from cashmoney import timer
-
-
-
-class Lot(object):
-
-    def __init__(self):
-        self._securities_counter = defaultdict(int)
-
-    def add_security(self, security, costbasis, t, amount):
-        # TODO(Sarat): Implement this.
-        self._securities_counter[security] += amount
-
-    def remove_security(self, security, costbasis, t, amount):
-        # TODO(Sarat): Implement this.
-        self._securities_counter[security] -= amount
-
-    def edit_lot(self, security, costbasis, t, new_amount):
-        # TODO(Sarat): Implement this.
-        self._securities_counter[security] = new_amount
-
-    def get_total_amount_for_security(self, security):
-        return self._securities_counter[security]
-
+from cashmoney.security import USD, Amount, Lot
 
 class Account(object):
 
@@ -40,34 +15,30 @@ class BrokerageAccount(Account):
 
 class BankAccount(Account):
 
-    def __init__(self, name, min_balance, balance):
+    def __init__(self, name, min_balance, balance, t):
         super(BankAccount, self).__init__(name=name)
         self._security_type = USD
-        self._lot.add_security(self._security_type, 0, timer.time(), balance)
+        self._lot.add_amount(self._security_type, 0, balance, t)
         self.minimum_balance = min_balance
 
-    @property
-    def balance(self):
-        return self._lot.get_total_amount_for_security(self._security_type)
-
-    @balance.setter
-    def balance(self, value):
-        self._lot.edit_lot(self._security_type, 0, timer.time(), value)
+    def balance(self, t):
+        return self._lot.get_total_amount_for_security(self._security_type, t)
 
     def __repr__(self):
-        return "BankAccount(%s, balance=%s)" %(self.name, str(self.balance))
+        current_t = timer.time()
+        return "BankAccount(%s, balance=%s, t=%s)" %(self.name, str(self.balance(t)), current_t)
 
-    def deposit(self, value):
-        self.balance += value
+    def deposit(self, value, t):
+        self._lot.add_amount(self._security_type, 0, value, t)
 
-    def withdraw(self, value):
-        if value > self.balance:
+    def withdraw(self, value, t):
+        if value > self.balance(t):
             print "Not enough funds"
             return
 
-        self.balance -= value
-        print "Removed %s to balance %s" %(str(value), str(self.balance))
+        self._lot.remove_amount(self._security_type, 0, value, t, Lot.WITHDRAW_MODE_FIFO)
+        print "Removed %s to balance %s" %(str(value), str(self.balance(t)))
 
-        if self.balance < self.minimum_balance:
+        if self.balance(t) < self.minimum_balance:
             print "Funds too low"
 
