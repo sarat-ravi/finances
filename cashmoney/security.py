@@ -22,6 +22,7 @@ class Security(object):
 
 
 USD = Security("USD")
+INR = Security("INR")
 
 class Amount(object):
 
