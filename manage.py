@@ -3,7 +3,8 @@ import time
 import yaml
 from pprint import pprint
 
-from cashmoney import *
+from pynance import *
+from pynance.models import *
 
 
 def main():
