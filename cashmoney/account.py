@@ -18,7 +18,7 @@ class BankAccount(Account):
     def __init__(self, name, min_balance, balance, t):
         super(BankAccount, self).__init__(name=name)
         self._security_type = USD
-        self._lot.add_amount(self._security_type, 0, balance, t)
+        self._lot.add(Lot.Spot(self._security_type, 0, t), balance, t)
         self.minimum_balance = min_balance
 
     def balance(self, t):
@@ -28,16 +28,16 @@ class BankAccount(Account):
         current_t = timer.time()
         return "BankAccount(%s, balance=%s, t=%s)" %(self.name, str(self.balance(t)), current_t)
 
-    def deposit(self, value, t):
-        self._lot.add_amount(self._security_type, 0, value, t)
+    def deposit(self, amount, t):
+        self._lot.add(Lot.Spot(self._security_type, 0, t), amount, t)
 
-    def withdraw(self, value, t):
-        if value > self.balance(t):
+    def withdraw(self, amount, t):
+        if amount > self.balance(t):
             print "Not enough funds"
             return
 
-        self._lot.remove_amount(self._security_type, 0, value, t, Lot.WITHDRAW_MODE_FIFO)
-        print "Removed %s to balance %s" %(str(value), str(self.balance(t)))
+        self._lot.remove(self._security_type, amount, t, Lot.WITHDRAW_MODE_FIFO)
+        print "Removed %s to balance %s" %(str(amount), str(self.balance(t)))
 
         if self.balance(t) < self.minimum_balance:
             print "Funds too low"

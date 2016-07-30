@@ -95,56 +95,124 @@ class Lot(object):
     WITHDRAW_MODE_FIFO = "FIFO"
     WITHDRAW_MODE_EXACT = "EXACT"
 
+    class Spot(object):
+
+        def __init__(self, security, costbasis, t):
+            super(Lot.Spot, self).__init__()
+            self.security = security
+            self.costbasis = costbasis
+            self.t = t
+
+        def __hash__(self):
+            return hash((self.security, self.costbasis, self.t))
+
+        def __repr__(self):
+            return "Spot(sec={}, cb={}, t={})".format(self.security, self.costbasis, self.t)
+
+    class _SpotDiff(object):
+
+        def __init__(self, spot, amount):
+            super(Lot._SpotDiff, self).__init__()
+            self.spot = spot
+            self.amount = amount
+
+        def __radd__(self, other_value):
+            return self + other_value
+
+        def __add__(self, other_diff):
+            if isinstance(other_diff, numbers.Number) and other_diff == 0:
+                return copy.deepcopy(self)
+
+            if self.spot != other_diff.spot:
+                raise ValueError("Can't add diffs, because spots are different")
+
+            self_copy = copy.deepcopy(self)
+            self_copy.amount = self_copy.amount + other_diff.amount
+            return self_copy
+
+    class _Diff(object):
+
+        def __init__(self, spot_diffs=[]):
+            super(Lot._Diff, self).__init__()
+            self.spot_diffs = defaultdict(int)
+            for spot_diff in spot_diffs:
+                self.spot_diffs[spot_diff.spot] += spot_diff
+
+        def __radd__(self, other_value):
+            return self + other_value
+
+        def __add__(self, other_diff):
+            if isinstance(other_diff, numbers.Number) and other_diff == 0:
+                return copy.deepcopy(self)
+
+            self_copy = copy.deepcopy(self)
+            for other_spot, other_spot_diff in other_diff.spot_diffs.iteritems():
+                self_copy.spot_diffs[other_spot] += other_spot_diff
+
+            return self_copy
+
     def __init__(self):
-        self._data = defaultdict(int)
+        self.diffs = defaultdict(int)
 
-    def add_amount(self, security, costbasis, amount, t):
-        self._data[(security, costbasis, t)] += amount
+    def add(self, spot, amount, t):
+        diff = Lot._Diff((Lot._SpotDiff(spot, amount),))
 
-    def remove_amount(self, security, costbasis, amount, t, withdraw_mode):
-        if withdraw_mode == Lot.WITHDRAW_MODE_EXACT:
-            key = (security, costbasis, t)
-            if not key in self._data:
-                raise ValueError("Lot not found")
+        if amount < 0 and amount > self.get_total_amount_for_security(spot.security, t):
+            raise ValueError("Unable to remove {} from {}".format(amount, spot))
 
-            current_amount = self._data[key]
+        self.diffs[t] += diff
 
-            if amount > current_amount:
-                raise ValueError("Amount to remove exceeds current amount")
+    def remove(self, security, amount, t, mode):
+        if mode == Lot.WITHDRAW_MODE_EXACT:
+            raise NotImplementedError
 
-            new_amount = current_amount - amount
-            if new_amount == 0:
-                del self._data[key]
-                return
+        spot = self._get_fifo_spot(security, t)
+        self.add(spot, -1 * amount, t)
 
-            self._data[key] = new_amount
-        elif withdraw_mode == Lot.WITHDRAW_MODE_FIFO:
-            matching_key = None
-            for key, _ in self._data.iteritems():
-                sec, cb, tt = key
-                if security == sec and cb == costbasis and tt < t:
-                    matching_key = key
-                    break
-            if matching_key:
-                new_amount = self._data[matching_key] - amount
-                self._data[matching_key] = new_amount
+    def _get_fifo_spot(self, security, t):
+        min_tt = t
+        first_diff = None
+        for tt, diff in self.diffs.iteritems():
+            if tt <= t and self._contains_security_in_diff(security, diff):
+                min_tt = tt
+                first_diff = diff
 
+        candidate_spots = []
+        for spt, spt_diff in first_diff.spot_diffs.iteritems():
+            if spt.security == security:
+                candidate_spots.append(spt)
 
-    def edit_lot(self, security, costbasis, new_amount, t):
-        key = (security, costbasis, t)
-        if not key in self._data:
-            raise ValueError("Lot not found")
+        min_cb_spt = candidate_spots[0]
+        min_cb = min_cb_spt.costbasis
+        for spt in candidate_spots:
+            if spt.costbasis < min_cb:
+                min_cb = spt.costbasis
+                min_cb_spt = spt
 
-        self._data[key] = new_amount
+        return min_cb_spt
+
+    def _contains_security_in_diff(self, security, diff):
+        for spt, spt_diff in diff.spot_diffs.iteritems():
+            if spt.security == security:
+                return True
+
+        return False
 
     def get_total_amount_for_security(self, security, t):
+        total_diff = 0
+
+        for tt, diff in self.diffs.iteritems():
+            if tt < t:
+                total_diff += diff
+
+        if total_diff == 0:
+            return 0
+
         total_amount = 0
-        for key, amount in self._data.iteritems():
-            sec, _, tt = key
-            if security == sec and tt < t:
-                total_amount += amount
+        for _, spot_diff in total_diff.spot_diffs.iteritems():
+            if spot_diff.spot.security == security:
+                total_amount += spot_diff.amount
 
         return total_amount
-
 
 

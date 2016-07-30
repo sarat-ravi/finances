@@ -27,7 +27,7 @@ class TestBankAccount:
         b = BankAccount('Wells Fargo', 100, 1000, t)
 
         assert_equals(b.balance(t+4), 1000)
-        b.withdraw(t+1, 500)
+        b.withdraw(500, t+1)
         assert_equals(b.balance(t+2), 500)
         assert_equals(b.balance(t+3), 500)
         assert_equals(b.balance(t+4), 500)
@@ -37,7 +37,7 @@ class TestBankAccount:
         b = BankAccount('Wells Fargo', 100, 1000, t)
 
         assert_equals(b.balance(t+4), 1000)
-        b.deposit(t+1, 500)
+        b.deposit(500, t+1)
         assert_equals(b.balance(t+2), 1500)
         assert_equals(b.balance(t+3), 1500)
         assert_equals(b.balance(t+4), 1500)
