@@ -1,4 +1,5 @@
-from cashmoney import PeriodicFlow, Amount, USD
+from cashmoney import PeriodicFlow
+from cashmoney.models import Amount, USD
 from nose.tools import assert_equals, assert_not_equals
 
 class TestFlows:

@@ -1,4 +1,4 @@
-from cashmoney.security import USD, Amount, Lot
+from cashmoney.models.security import USD, Amount, Lot
 
 class Account(object):
 

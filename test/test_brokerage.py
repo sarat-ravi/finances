@@ -1,4 +1,4 @@
-from cashmoney import BrokerageAccount, USD, INR, Lot
+from cashmoney.models import BrokerageAccount, USD, INR, Lot
 from nose.tools import assert_equals
 
 class TestBrokerageAccount:
