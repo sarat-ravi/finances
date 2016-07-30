@@ -1,4 +1,4 @@
-from cashmoney.models.security import USD, Amount, Lot
+from pynance.models.security import USD, Amount, Lot
 
 class Account(object):
 

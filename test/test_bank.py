@@ -1,4 +1,4 @@
-from cashmoney.models import BankAccount
+from pynance.models import BankAccount
 from nose.tools import assert_equals
 
 class TestBankAccount:

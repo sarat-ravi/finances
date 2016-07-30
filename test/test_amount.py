@@ -1,4 +1,4 @@
-from cashmoney.models import Security, USD, Amount
+from pynance.models import Security, USD, Amount
 from nose.tools import *
 
 
