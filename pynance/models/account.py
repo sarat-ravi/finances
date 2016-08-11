@@ -21,6 +21,7 @@ class BrokerageAccount(Account):
         self._lot.add(spot, amount, t)
 
     def remove(self, security, amount, t, mode):
+        #TODO(Sarat): Remove the 'security' argument, because it is useless.
         self._lot.remove(security, amount, t, mode)
 
     def get_total_amount_for_security(self, security, t):
