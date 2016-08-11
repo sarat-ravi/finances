@@ -13,13 +13,23 @@ class Pipe(object):
         self._dest_account = dest_account
         self._flow = flow
 
+        self._blackouts = []
         self._last_flushed_t = None
+        self._flow_enabled = False
 
     def start_flow(self, t)
         """
         Only flow after the specified t will actually be transferred from the source account to dest.
         """
         self._last_flushed_t = t
+        self._flow_enabled = True
+
+    def stop_flow(self, t)
+        """
+        Only flow after the specified t will actually be transferred from the source account to dest.
+        """
+        self._last_flushed_t = t
+        self._flow_enabled = True
 
     def flush(self, t):
         """
