@@ -7,15 +7,6 @@ class Account(object):
         self._name = name
         self._lot = Lot()
 
-    def get_lot(self):
-        return self._lot
-
-
-class BrokerageAccount(Account):
-
-    def __init__(self, name):
-        super(BrokerageAccount, self).__init__(name=name)
-
     def add(self, spot, amount, t):
         assert isinstance(spot, Lot.Spot)
         self._lot.add(spot, amount, t)
@@ -25,6 +16,10 @@ class BrokerageAccount(Account):
 
     def get_total_amount_for_security(self, security, t):
         return self._lot.get_total_amount_for_security(security, t)
+
+
+class BrokerageAccount(Account):
+    pass
 
 
 class BankAccount(Account):
