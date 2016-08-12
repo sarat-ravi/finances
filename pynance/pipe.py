@@ -20,6 +20,7 @@ class Pipe(object):
         self._blackouts = []
         self._last_flushed_t = None
         self._flow_enabled = False
+        self._last_stopped_t = None
 
     def start_flow(self, t):
         """
@@ -31,8 +32,8 @@ class Pipe(object):
         if t < self._last_flushed_t:
             raise PipeException("Time travel not supported yet")
 
-        if not self._last_flushed_t == None:
-            self._blackouts.append(IntInterval.closed_open(self._last_flushed_t, t))
+        if not self._last_stopped_t == None:
+            self._blackouts.append(IntInterval.closed_open(self._last_stopped_t, t))
 
         self._last_flushed_t = t
         self._flow_enabled = True
@@ -48,6 +49,7 @@ class Pipe(object):
             raise PipeException("Can't stop flow retroactively after flushed")
 
         self._flow_enabled = False
+        self._last_stopped_t = t
 
     def _is_blacked_out(self, t):
         for blackout_interval in self._blackouts:
@@ -60,7 +62,11 @@ class Pipe(object):
         """
         Will flush any of the flow from self._last_flushed_t to the specified t
         """
-        for tt in xrange(self._last_flushed_t, t):
+        rng = xrange(self._last_flushed_t, t)
+        if not self._flow_enabled:
+            rng = xrange(self._last_flushed_t, min(t, self._last_stopped_t))
+
+        for tt in rng:
             if self._is_blacked_out(tt):
                 continue
 
@@ -68,7 +74,8 @@ class Pipe(object):
             if amount:
                 self._transfer(amount, t)
 
-        self._last_flushed_t = t
+        if t > self._last_flushed_t:
+            self._last_flushed_t = t
 
     def _transfer(self, amount, t):
         """
