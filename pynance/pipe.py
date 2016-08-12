@@ -1,5 +1,5 @@
 from pynance.flow import Flow
-from pynance.models import Account
+from pynance.models import Account, Lot
 from intervals import IntInterval
 
 class PipeException(Exception):
@@ -8,7 +8,7 @@ class PipeException(Exception):
 class Pipe(object):
     # TODO(Sarat): Finish spec-ing this class
 
-    def __init__(self, name, source_account=None, dest_account=None, flow):
+    def __init__(self, name, flow, source_account=None, dest_account=None):
         super(Pipe, self).__init__()
         self._name = name
         assert source_account == None or isinstance(source_account, Account)
@@ -21,7 +21,7 @@ class Pipe(object):
         self._last_flushed_t = None
         self._flow_enabled = False
 
-    def start_flow(self, t)
+    def start_flow(self, t):
         """
         Only flow after the specified t will actually be transferred from the source account to dest.
         """
@@ -37,7 +37,7 @@ class Pipe(object):
         self._last_flushed_t = t
         self._flow_enabled = True
 
-    def stop_flow(self, t)
+    def stop_flow(self, t):
         """
         Only flow after the specified t will actually be transferred from the source account to dest.
         """
@@ -64,7 +64,7 @@ class Pipe(object):
             if self._is_blacked_out(tt):
                 continue
 
-            amount = flow[tt]
+            amount = self._flow[tt]
             if amount:
                 self._transfer(amount, t)
 
@@ -84,7 +84,7 @@ class Pipe(object):
             self._source_account.remove(amount.security, amount.amount, t, Lot.WITHDRAW_MODE_FIFO)
 
         #TODO(Sarat): Add costbasis information to flow
-        if self._dest_account
+        if self._dest_account:
             self._dest_account.add(Lot.Spot(amount.security, 0, t), amount.amount, t)
 
 
