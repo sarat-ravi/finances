@@ -31,6 +31,14 @@ class Amount(object):
         self._security = security
         self._amount = amount
 
+    @property
+    def security(self):
+        return self._security
+
+    @property
+    def amount(self):
+        return self._amount
+
     def __eq__(self, other):
         return self._security == other._security and self._amount == other._amount
 
