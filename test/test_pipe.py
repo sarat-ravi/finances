@@ -1,4 +1,4 @@
-from pynance import Pipe, PeriodicFlow
+from pynance import Pipe, InputPipe, OutputPipe, PeriodicFlow
 from pynance.models import Amount, USD, Lot, BankAccount
 from nose.tools import assert_equals, assert_not_equals
 
@@ -13,6 +13,58 @@ class TestPipes:
     def _assert_amount(self, banks, amounts, t):
         for bank, amount in zip(banks, amounts):
             assert_equals(bank.balance(t), amount)
+
+    def test_output_pipe(self):
+        t = 0
+        amount = Amount(10, USD)
+        flow = PeriodicFlow(name="testFlow", period=10, stime=5, etime=45, amount=amount)
+        account = BankAccount('Bank', 100, 20, t-1)
+        pipe = OutputPipe(name="testPipe", flow=flow, account=account)
+        assert_equals(account.balance(t), 20)
+
+        pipe.start_flow(t)
+
+        # Test that nothing gets tranfered for for T + 1 --> t + 5
+        for i in range(1, 6):
+            pipe.flush(t+i)
+            assert_equals(account.balance(t+i), 20)
+            assert_equals(account.balance(t+i+1), 20)
+
+        # Flush until T+6, and verify that a transfer happens!
+        pipe.flush(t+6)
+        assert_equals(account.balance(t+6), 20)
+        assert_equals(account.balance(t+7), 10)
+
+        # Flush until T+16, and verify that a transfer happens!
+        pipe.flush(t+16)
+        assert_equals(account.balance(t+16), 10)
+        assert_equals(account.balance(t+17), 0)
+
+    def test_input_pipe(self):
+        t = 0
+        amount = Amount(10, USD)
+        flow = PeriodicFlow(name="testFlow", period=10, stime=5, etime=45, amount=amount)
+        account = BankAccount('Bank', 100, 0, t)
+        pipe = InputPipe(name="testPipe", flow=flow, account=account)
+        assert_equals(account.balance(t), 0)
+
+        pipe.start_flow(t)
+
+        # Test that nothing gets tranfered for for T + 1 --> t + 5
+        for i in range(1, 6):
+            pipe.flush(t+i)
+            assert_equals(account.balance(t+i), 0)
+            assert_equals(account.balance(t+i+1), 0)
+
+        # Flush until T+6, and verify that a transfer happens!
+        pipe.flush(t+6)
+        assert_equals(account.balance(t+6), 0)
+        assert_equals(account.balance(t+7), 10)
+
+        # Flush until T+16, and verify that a transfer happens!
+        pipe.flush(t+16)
+        assert_equals(account.balance(t+16), 10)
+        assert_equals(account.balance(t+17), 20)
 
     def test_basic_functionality(self):
         t = 0

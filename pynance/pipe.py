@@ -95,4 +95,14 @@ class Pipe(object):
             self._dest_account.add(Lot.Spot(amount.security, 0, t), amount.amount, t)
 
 
+class InputPipe(Pipe):
+
+    def __init__(self, name, flow, account):
+        super(InputPipe, self).__init__(name, flow, None, account)
+
+
+class OutputPipe(Pipe):
+
+    def __init__(self, name, flow, account):
+        super(OutputPipe, self).__init__(name, flow, account, None)
 
