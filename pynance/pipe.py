@@ -113,6 +113,6 @@ class InputPipe(Pipe):
 
 class OutputPipe(Pipe):
 
-    def __init__(self, name, flow, account, costbasis_fetcher=None):
-        super(OutputPipe, self).__init__(name, flow, costbasis_fetcher, account, None)
+    def __init__(self, name, flow, account):
+        super(OutputPipe, self).__init__(name, flow, None, account, None)
 
