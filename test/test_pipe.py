@@ -32,12 +32,12 @@ class TestPipes:
 
         # Flush until T+6, and verify that a transfer happens!
         pipe.flush(t+6)
-        assert_equals(account.balance(t+6), 20)
+        assert_equals(account.balance(t+6), 10)
         assert_equals(account.balance(t+7), 10)
 
         # Flush until T+16, and verify that a transfer happens!
         pipe.flush(t+16)
-        assert_equals(account.balance(t+16), 10)
+        assert_equals(account.balance(t+16), 0)
         assert_equals(account.balance(t+17), 0)
 
     def test_input_pipe(self):
@@ -58,12 +58,12 @@ class TestPipes:
 
         # Flush until T+6, and verify that a transfer happens!
         pipe.flush(t+6)
-        assert_equals(account.balance(t+6), 0)
+        assert_equals(account.balance(t+6), 10)
         assert_equals(account.balance(t+7), 10)
 
         # Flush until T+16, and verify that a transfer happens!
         pipe.flush(t+16)
-        assert_equals(account.balance(t+16), 10)
+        assert_equals(account.balance(t+16), 20)
         assert_equals(account.balance(t+17), 20)
 
     def test_basic_functionality(self):
@@ -85,7 +85,7 @@ class TestPipes:
 
         # Flush until T+6, and verify that a transfer happens!
         pipe.flush(t+6)
-        self._assert_amount((bank_a, bank_b), (30, 0), t+6)
+        self._assert_amount((bank_a, bank_b), (20, 10), t+6)
         self._assert_amount((bank_a, bank_b), (20, 10), t+7)
 
         # Flushing again shouldn't do anything
@@ -103,7 +103,8 @@ class TestPipes:
 
         # Flush until T+16, and verify that a transfer happens!
         pipe.flush(t+16)
-        self._assert_amount((bank_a, bank_b), (20, 10), t+16)
+        self._assert_amount((bank_a, bank_b), (20, 10), t+15)
+        self._assert_amount((bank_a, bank_b), (10, 20), t+16)
         self._assert_amount((bank_a, bank_b), (10, 20), t+17)
 
         # Create a gap from T + 16 --> T + 34, so any transfers in this range would be discarded!
@@ -118,6 +119,7 @@ class TestPipes:
 
         # Flush until T+36, and verify that a transfer happens!
         pipe.flush(t+36)
-        self._assert_amount((bank_a, bank_b), (10, 20), t+36)
+        self._assert_amount((bank_a, bank_b), (10, 20), t+35)
+        self._assert_amount((bank_a, bank_b), (0, 30), t+36)
         self._assert_amount((bank_a, bank_b), (0, 30), t+37)
 

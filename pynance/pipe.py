@@ -58,13 +58,16 @@ class Pipe(object):
 
         return False
 
-    def flush(self, t):
+    def peek(self, t):
         """
-        Will flush any of the flow from self._last_flushed_t to the specified t
+        Returns a list of pairs, where each pair is of the format (<t>, <amount>). Each pair
+        corresponds to a transfer point.
         """
         rng = xrange(self._last_flushed_t, t)
         if not self._flow_enabled:
             rng = xrange(self._last_flushed_t, min(t, self._last_stopped_t))
+
+        pairs = []
 
         for tt in rng:
             if self._is_blacked_out(tt):
@@ -72,7 +75,16 @@ class Pipe(object):
 
             amount = self._flow[tt]
             if amount:
-                self._transfer(amount, t)
+                pairs.append((tt, amount))
+
+        return pairs
+
+    def flush(self, t):
+        """
+        Will flush any of the flow from self._last_flushed_t to the specified t
+        """
+        for tt, amount in self.peek(t):
+            self._transfer(amount, tt)
 
         if t > self._last_flushed_t:
             self._last_flushed_t = t
@@ -80,10 +92,6 @@ class Pipe(object):
     def _transfer(self, amount, t):
         """
         Transfers the specified amount from the source account to the destination account.
-
-        def add(self, spot, amount, t):
-        def remove(self, security, amount, t, mode):
-        def get_total_amount_for_security(self, security, t):
         """
         #TODO(Sarat): Add locking.
 
