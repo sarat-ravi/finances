@@ -1,5 +1,5 @@
 from pynance import Pipe, InputPipe, OutputPipe, PeriodicFlow
-from pynance.models import Amount, USD, Lot, BankAccount
+from pynance.models import Amount, USD, INR, Lot, BankAccount
 from nose.tools import assert_equals, assert_not_equals
 
 class TestPipes:
@@ -16,18 +16,18 @@ class TestPipes:
 
     def test_costbasis_fetcher(self):
         t = 0
-        amount = Amount(10, USD)
+        amount = Amount(10, INR)
         flow = PeriodicFlow(name="testFlow", period=10, stime=5, etime=45, amount=amount)
         account = BankAccount('Bank', 100, 0, t)
         pipe = InputPipe(name="testPipe", flow=flow, account=account, costbasis_fetcher=lambda tt: Amount(tt*2, USD))
         pipe.start_flow(t)
 
         expected_peek = [
-                (5, Amount(10, USD), Amount(5*2, USD)),
-                (15, Amount(10, USD), Amount(15*2, USD)),
-                (25, Amount(10, USD), Amount(25*2, USD)),
-                (35, Amount(10, USD), Amount(35*2, USD)),
-                ]
+                (5, Amount(10, INR), Amount(5*2, USD)),
+                (15, Amount(10, INR), Amount(15*2, USD)),
+                (25, Amount(10, INR), Amount(25*2, USD)),
+                (35, Amount(10, INR), Amount(35*2, USD)),
+            ]
         assert_equals(pipe.peek(100), expected_peek)
 
 
