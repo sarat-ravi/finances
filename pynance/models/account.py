@@ -7,6 +7,10 @@ class Account(object):
         self._name = name
         self._lot = Lot()
 
+    @property
+    def name(self):
+        return self._name
+
     def add(self, spot, amount, t):
         assert isinstance(spot, Lot.Spot)
         self._lot.add(spot, amount, t)

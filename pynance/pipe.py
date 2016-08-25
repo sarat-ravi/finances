@@ -24,6 +24,10 @@ class Pipe(object):
         self._flow_enabled = False
         self._last_stopped_t = None
 
+    @property
+    def name(self):
+        return self._name
+
     def start_flow(self, t):
         """
         Only flow after the specified t will actually be transferred from the source account to dest.
