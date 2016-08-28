@@ -1,4 +1,5 @@
 from pynance.market.model import MarketModel
+from pynance.models import Amount, Security
 
 class Market(object):
     """
@@ -7,17 +8,31 @@ class Market(object):
 
     def __init__(self, name):
         self._name = name
-        # TODO(Sarat): Support weighted market models.
-        self._market_models = []
+        self._market_models = {}
 
-    def quote(amount, security, t):
+    def add_market_model(self, market_model, score):
+        """
+        Add a market model with an arbitrary user specified score, which measures the "legitimicy" of the model. All the scores
+        for the models will be normalized and the weighted average will be used.
+        """
+        assert isinstance(market_model, MarketModel)
+        self._market_models[market_model] = score
+
+    def quote(self, amount, security, t):
         """
         Returns an amount that represents how much the specified amount is worth in the specified security at the specified t.
         """
-        # TODO(Sarat): Support weighted market models.
-        for market_model in self._market_models:
-            if market_model.can_quote(amount.security, security, t):
-                return market_model.quote(amount, security, t)
+        assert isinstance(amount, Amount)
+        assert isinstance(security, Security)
 
+        eligible_models = [m, s for m, s in self._market_models.iteritems() if m.can_quote(amount.security, security, t)]
+        models = [m for m, _ in eligible_models]
+        scores = [s for _, s in eligible_models]
+        weights = (scores - min(scores))/(max(scores) - min(scores))
 
+        value = 0
+        for model, weight in zip(models, weights):
+            value += model.quote(amount, security, t) * weight
+
+        return value
 

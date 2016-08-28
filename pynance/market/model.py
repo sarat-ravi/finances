@@ -32,6 +32,25 @@ class MarketModel(object):
     def _quote(self, amount, security, t):
         raise NotImplementedError
 
+class StaticMarketModel(object):
+    """
+    A really stupid market model that assumes the value of security A is proportional to the value of security B, for any T.
+    """
+
+    def __init__(self, name, constant):
+        super(LinearMarketModel, self).__init__(name)
+        self._constant = constant
+
+    def _can_quote(self, security_a, security_b, t):
+        """Base Class Override"""
+        # This dummy model simply uses a linear equation, so it can support anything.
+        return True
+
+    def _quote(self, amount, security, t):
+        """Base Class Override"""
+        # y = mx
+        return Amount(amount.amount * self.constant, security)
+
 class LinearMarketModel(object):
     """
     A really stupid market model that assumes the value of security A in terms of security B grows linearly as t goes on,
