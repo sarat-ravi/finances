@@ -18,7 +18,9 @@ class TestAmounts:
         assert_equals(Amount(1.0, USD), Amount(1, USD))
         assert_equals(Amount(1.001, USD), Amount(1, USD))
         assert_equals(Amount(80.0, MYR), Amount(80, MYR))
+        assert_equals(Amount(79.995, MYR), Amount(80, MYR))
 
+        assert_not_equals(Amount(79.994, MYR), Amount(80, MYR))
         assert_not_equals(Amount(1.01, USD), Amount(1, USD))
 
     def test_amount_multiplication(self):
