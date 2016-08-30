@@ -1,5 +1,5 @@
 from pynance.market.model import MarketModel
-from pynance.models import Amount, Security
+from pynance.models import Amount, MYR, Security
 
 class Market(object):
     """

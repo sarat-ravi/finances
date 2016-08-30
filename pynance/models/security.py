@@ -1,6 +1,7 @@
 import copy
 import numbers
 from collections import defaultdict
+from decimal import Decimal
 
 class Security(object):
 
@@ -30,7 +31,7 @@ class Amount(object):
     def __init__(self, amount, security):
         super(Amount, self).__init__()
         self._security = security
-        self._amount = amount
+        self._amount = Decimal(amount)
 
     @property
     def security(self):
@@ -41,7 +42,7 @@ class Amount(object):
         return self._amount
 
     def _is_fuzzy_equal(self, amount_a, amount_b):
-        return int(amount_a * 100) == int(amount_b * 100)
+        return int(round(amount_a * 100)) == int(round(amount_b * 100))
 
     def __eq__(self, other):
         return self._security == other._security and self._is_fuzzy_equal(self._amount, other._amount)
@@ -67,7 +68,7 @@ class Amount(object):
             raise ValueError("Can't multiply by {} because its an invalid type".format(value))
 
         self_copy = copy.deepcopy(self)
-        self_copy._amount = self_copy._amount * value
+        self_copy._amount = self_copy._amount * Decimal(value)
         return self_copy
 
     def __radd__(self, other_value):
@@ -76,7 +77,7 @@ class Amount(object):
     def __rsub__(self, other_value):
         if isinstance(other_value, numbers.Number):
             self_copy = copy.deepcopy(self)
-            self_copy._amount = other_value - self_copy._amount
+            self_copy._amount = Decimal(other_value) - self_copy._amount
             return self_copy
 
         raise ValueError("Unsupported input {}".format(other_value))
@@ -84,23 +85,25 @@ class Amount(object):
     def __sub__(self, other_amount):
         if isinstance(other_amount, numbers.Number):
             self_copy = copy.deepcopy(self)
-            self_copy._amount = self_copy._amount - other_amount
+            self_copy._amount = self_copy._amount - Decimal(other_amount)
             return self_copy
 
         neg = copy.deepcopy(other_amount)
-        neg._amount = neg._amount * -1
+        neg._amount = neg._amount * Decimal(-1)
         return self + neg
 
     def __add__(self, other_amount):
         if isinstance(other_amount, numbers.Number):
             self_copy = copy.deepcopy(self)
-            self_copy._amount = self_copy._amount + other_amount
+            self_copy._amount = self_copy._amount + Decimal(other_amount)
             return self_copy
 
         if self._security != other_amount._security:
             raise ValueError("{} can't be added to {}".format(other_amount, self))
 
-        return Amount(self._amount + other_amount._amount, self._security)
+        self_copy = copy.deepcopy(self)
+        self_copy._amount = self._amount + other_amount._amount
+        return self_copy
 
 class Lot(object):
     # TODO(Sarat): Reimplement this class using sqlite
