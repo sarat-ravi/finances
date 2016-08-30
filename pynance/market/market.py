@@ -1,5 +1,6 @@
 from pynance.market.model import MarketModel
 from pynance.models import Amount, MYR, Security
+from decimal import Decimal
 
 class Market(object):
     """
@@ -16,7 +17,7 @@ class Market(object):
         for the models will be normalized and the weighted average will be used.
         """
         assert isinstance(market_model, MarketModel)
-        self._market_models[market_model] = score
+        self._market_models[market_model] = Decimal(score)
 
     def quote(self, amount, security, t):
         """
@@ -30,7 +31,7 @@ class Market(object):
         scores = [s for _, s in eligible_models]
 
         sum_scores = sum(scores)
-        weights = [float(s)/sum_scores for s in scores]
+        weights = [s/sum_scores for s in scores]
 
         value = 0
         for model, weight in zip(models, weights):
