@@ -1,4 +1,4 @@
-from pynance.models import Security, USD, Amount
+from pynance.models import Security, USD, MYR, Amount
 from nose.tools import *
 
 
@@ -9,6 +9,17 @@ class TestAmounts:
 
     def teardown(self):
         pass
+
+    def test_inequality(self):
+        assert_not_equals(Amount(2, USD), Amount(4, USD))
+        assert_not_equals(Amount(20, USD), Amount(40, USD))
+
+    def test_fuzzy_equality(self):
+        assert_equals(Amount(1.0, USD), Amount(1, USD))
+        assert_equals(Amount(1.001, USD), Amount(1, USD))
+        assert_equals(Amount(80.0, MYR), Amount(80, MYR))
+
+        assert_not_equals(Amount(1.01, USD), Amount(1, USD))
 
     def test_amount_multiplication(self):
         one = Amount(1, USD)
@@ -61,7 +72,6 @@ class TestAmounts:
         assert_not_equals(Amount(10, USD), Amount(20, USD))
 
         assert_equals(Amount(10.001, USD), Amount(10.001, USD))
-        assert_not_equals(Amount(10.001, USD), Amount(10.003, USD))
         assert_not_equals(Amount(10.001, USD), Amount(-10.001, USD))
 
     def test_amount_hash(self):

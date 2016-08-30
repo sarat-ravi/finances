@@ -8,6 +8,7 @@ class MarketModel(object):
     """
 
     def __init__(self, name):
+        super(MarketModel, self).__init__()
         self._name = name
 
     def can_quote(self, security_a, security_b, t):
@@ -32,13 +33,13 @@ class MarketModel(object):
     def _quote(self, amount, security, t):
         raise NotImplementedError
 
-class StaticMarketModel(object):
+class StaticMarketModel(MarketModel):
     """
     A really stupid market model that assumes the value of security A is proportional to the value of security B, for any T.
     """
 
-    def __init__(self, name, constant):
-        super(LinearMarketModel, self).__init__(name)
+    def __init__(self, name, constant=1):
+        super(StaticMarketModel, self).__init__(name)
         self._constant = constant
 
     def _can_quote(self, security_a, security_b, t):
@@ -49,9 +50,9 @@ class StaticMarketModel(object):
     def _quote(self, amount, security, t):
         """Base Class Override"""
         # y = mx
-        return Amount(amount.amount * self.constant, security)
+        return Amount(amount.amount * self._constant, security)
 
-class LinearMarketModel(object):
+class LinearMarketModel(MarketModel):
     """
     A really stupid market model that assumes the value of security A in terms of security B grows linearly as t goes on,
     independent of security A. As one can tell, this is a very useless model, but is useful for theoretical excercises.

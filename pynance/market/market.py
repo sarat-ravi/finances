@@ -25,14 +25,17 @@ class Market(object):
         assert isinstance(amount, Amount)
         assert isinstance(security, Security)
 
-        eligible_models = [m, s for m, s in self._market_models.iteritems() if m.can_quote(amount.security, security, t)]
+        eligible_models = [(m, s) for (m, s) in self._market_models.iteritems() if m.can_quote(amount.security, security, t)]
         models = [m for m, _ in eligible_models]
         scores = [s for _, s in eligible_models]
-        weights = (scores - min(scores))/(max(scores) - min(scores))
+
+        sum_scores = sum(scores)
+        weights = [float(s)/sum_scores for s in scores]
 
         value = 0
         for model, weight in zip(models, weights):
             value += model.quote(amount, security, t) * weight
 
+        assert isinstance(value, Amount)
         return value
 

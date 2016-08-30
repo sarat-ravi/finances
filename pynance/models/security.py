@@ -23,6 +23,7 @@ class Security(object):
 
 USD = Security("USD")
 INR = Security("INR")
+MYR = Security("MYR")
 
 class Amount(object):
 
@@ -39,8 +40,11 @@ class Amount(object):
     def amount(self):
         return self._amount
 
+    def _is_fuzzy_equal(self, amount_a, amount_b):
+        return int(amount_a * 100) == int(amount_b * 100)
+
     def __eq__(self, other):
-        return self._security == other._security and self._amount == other._amount
+        return self._security == other._security and self._is_fuzzy_equal(self._amount, other._amount)
 
     def __ne__(self, other):
         return not self.__eq__(other)
