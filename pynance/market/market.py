@@ -1,4 +1,4 @@
-from pynance.market.model import MarketModel
+from pynance.market.market_model import MarketModel
 from pynance.models import Amount, MYR, Security
 from decimal import Decimal
 
