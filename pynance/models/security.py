@@ -44,7 +44,31 @@ class Amount(object):
     def _is_fuzzy_equal(self, amount_a, amount_b):
         return int(round(amount_a * 100)) == int(round(amount_b * 100))
 
+    def __lt__(self, other):
+        if self == other:
+            return False
+
+        if other == 0:
+            return self._amount < 0
+
+        if not self._security == other._security:
+            raise ValueError("Can't compare different securities ({}, {})".format(self._security, other._security))
+
+        return self._amount < other._amount
+
+    def __le__(self, other):
+        return self == other or self < other
+
+    def __gt__(self, other):
+        return not self <= other
+
+    def __ge__(self, other):
+        return self == other or self > other
+
     def __eq__(self, other):
+        if other == 0:
+            return self._amount == 0
+
         return self._security == other._security and self._is_fuzzy_equal(self._amount, other._amount)
 
     def __ne__(self, other):
@@ -104,6 +128,56 @@ class Amount(object):
         self_copy = copy.deepcopy(self)
         self_copy._amount = self._amount + other_amount._amount
         return self_copy
+
+
+class NewLot(object):
+    """
+    A Lot can be thought of as a parking lot, where each parking spot can be thought of as 
+    one category of assets, for tax purposes.
+    """
+    # TODO(Sarat): Reimplement this class using sqlite
+
+    def __init__(self):
+        super(Lot, self).__init__()
+        self.transactions = []
+
+    def add(self, spot, amount, t):
+        raise NotImplementedError
+
+    def remove(self, security, amount, t, mode):
+        raise NotImplementedError
+
+    def get_total_amount_for_security(self, security, t):
+        raise NotImplementedError
+
+    class _AddTransaction(object):
+
+        def __init__(self, spot, amount, t):
+            super(Lot._Transaction, self).__init__()
+            assert amount >= 0
+
+    class Spot(object):
+        """
+        A spot contains information to categorize one or more assets for tax purposes.
+        """
+
+        def __init__(self, security, costbasis, t, flags=0):
+            super(Lot.Spot, self).__init__()
+
+            # information that uniquely describes this spot.
+            self.security = security
+            self.costbasis = costbasis
+            self.t = t
+
+            # misc flags
+            self.flags = flags
+
+        def __hash__(self):
+            return hash((self.security, self.costbasis, self.t))
+
+        def __repr__(self):
+            return "Spot(sec={}, cb={}, t={}), flags={}".format(self.security, self.costbasis, self.t, self.flags)
+
 
 class Lot(object):
     # TODO(Sarat): Reimplement this class using sqlite

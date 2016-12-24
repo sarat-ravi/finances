@@ -1,5 +1,6 @@
 from pynance.models import Security, USD, MYR, Amount
 from nose.tools import *
+from operator import le, ge, lt, gt
 
 
 class TestAmounts:
@@ -10,6 +11,23 @@ class TestAmounts:
     def teardown(self):
         pass
 
+    def test_comparisons(self):
+        assert_greater_equal(Amount(12, USD), Amount(4, USD))
+        assert_greater(Amount(12, USD), Amount(4, USD))
+        assert_less_equal(Amount(2, USD), Amount(4, USD))
+        assert_less(Amount(2, USD), Amount(4, USD))
+        assert_greater_equal(Amount(4, USD), Amount(4, USD))
+        assert_less_equal(Amount(4, USD), Amount(4, USD))
+
+        assert_greater_equal(Amount(12, USD), 0)
+        assert_greater(Amount(12, USD), 0)
+        assert_less_equal(Amount(-2, USD), 0.0)
+        assert_less(Amount(-2, USD), 0)
+        assert_greater_equal(Amount(0, USD), 0)
+        assert_less_equal(Amount(0, USD), 0.0)
+
+        assert_raises(ValueError, lt, Amount(4, USD), Amount(8, MYR))
+
     def test_inequality(self):
         assert_not_equals(Amount(2, USD), Amount(4, USD))
         assert_not_equals(Amount(20, USD), Amount(40, USD))
@@ -19,6 +37,11 @@ class TestAmounts:
         assert_equals(Amount(1.001, USD), Amount(1, USD))
         assert_equals(Amount(80.0, MYR), Amount(80, MYR))
         assert_equals(Amount(79.995, MYR), Amount(80, MYR))
+
+        assert_equals(Amount(0.0, MYR), 0)
+        assert_equals(Amount(0, MYR), 0.0)
+        assert_equals(Amount(0.0, MYR), 0.0)
+        assert_equals(Amount(0, MYR), 0)
 
         assert_not_equals(Amount(79.994, MYR), Amount(80, MYR))
         assert_not_equals(Amount(1.01, USD), Amount(1, USD))
