@@ -130,31 +130,53 @@ class Amount(object):
         return self_copy
 
 
-class NewLot(object):
+class Lot(object):
     """
     A Lot can be thought of as a parking lot, where each parking spot can be thought of as 
     one category of assets, for tax purposes.
     """
     # TODO(Sarat): Reimplement this class using sqlite
 
+    WITHDRAW_MODE_FIFO = "FIFO"
+    WITHDRAW_MODE_EXACT = "EXACT"
+
+    class _Transaction(object):
+        def __init__(self, transaction_type, params):
+            super(Lot._Transaction, self).__init__()
+            self.transaction_type = transaction_type
+            self.params = params
+
+            self.t = params[2]
+            self.security = params[0].security if self.transaction_type == "add" else params[0]
+            self.amount = params[1]
+
     def __init__(self):
         super(Lot, self).__init__()
-        self.transactions = []
+        self._transactions = []
 
     def add(self, spot, amount, t):
-        raise NotImplementedError
+        assert amount >= 0
+        transaction = Lot._Transaction("add", (spot, amount, t))
+        self._transactions.append(transaction)
 
     def remove(self, security, amount, t, mode):
-        raise NotImplementedError
+        assert amount >= 0
+        assert amount <= self.get_total_amount_for_security(security, t)
+        transaction = Lot._Transaction("remove", (security, amount, t, mode))
+        self._transactions.append(transaction)
 
     def get_total_amount_for_security(self, security, t):
-        raise NotImplementedError
-
-    class _AddTransaction(object):
-
-        def __init__(self, spot, amount, t):
-            super(Lot._Transaction, self).__init__()
-            assert amount >= 0
+        """
+        Get total amount of a security up to but not including t.
+        """
+        valid_transactions = [tran for tran in self._transactions if tran.t < t and tran.security == security]
+        balance = 0
+        for transaction in valid_transactions:
+            if transaction.transaction_type == "add":
+                balance = balance + transaction.amount
+            else:
+                balance = balance - transaction.amount
+        return balance
 
     class Spot(object):
         """
@@ -179,8 +201,8 @@ class NewLot(object):
             return "Spot(sec={}, cb={}, t={}), flags={}".format(self.security, self.costbasis, self.t, self.flags)
 
 
-class Lot(object):
-    # TODO(Sarat): Reimplement this class using sqlite
+class OldLot(object):
+    #TODO(Sarat): Delete this class entirely!
 
     WITHDRAW_MODE_FIFO = "FIFO"
     WITHDRAW_MODE_EXACT = "EXACT"
