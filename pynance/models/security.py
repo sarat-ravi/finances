@@ -141,6 +141,10 @@ class Lot(object):
     WITHDRAW_MODE_EXACT = "EXACT"
 
     class _Transaction(object):
+        """
+        Simple struct-like class that captures both 'add' and 'remove' transactions in one
+        object and has some helper properties.
+        """
         def __init__(self, transaction_type, params):
             super(Lot._Transaction, self).__init__()
             self.transaction_type = transaction_type
@@ -155,11 +159,33 @@ class Lot(object):
         self._transactions = []
 
     def add(self, spot, amount, t):
+        """
+        Add some amount to a specific spot, at a certain t.
+
+        >>> lot = Lot()
+        >>> lot.get_total_amount_for_security(USD, t=10)
+        0
+        >>> lot.add(Lot.Spot(security=USD, costbasis=0, t=4), 100, t=8) 
+        >>> lot.get_total_amount_for_security(USD, t=10)
+        100
+        """
         assert amount >= 0
         transaction = Lot._Transaction("add", (spot, amount, t))
         self._transactions.append(transaction)
 
     def remove(self, security, amount, t, mode):
+        """
+        Remove some amount of a specific security at t, with the specified 'mode'. In the FIFO
+        mode, for example, the security will be removed only from the spot that has the earliest 't'.
+
+        >>> lot = Lot()
+        >>> lot.add(Lot.Spot(security=USD, costbasis=0, t=4), 100, t=8) 
+        >>> lot.get_total_amount_for_security(USD, t=10)
+        100
+        >>> lot.remove(security=USD, amount=50, t=9, mode=WITHDRAW_MODE_FIFO)
+        >>> lot.get_total_amount_for_security(USD, t=10)
+        50
+        """
         assert amount >= 0
         assert amount <= self.get_total_amount_for_security(security, t)
         transaction = Lot._Transaction("remove", (security, amount, t, mode))
@@ -168,6 +194,11 @@ class Lot(object):
     def get_total_amount_for_security(self, security, t):
         """
         Get total amount of a security up to but not including t.
+
+        >>> lot = Lot()
+        >>> lot.add(Lot.Spot(security=USD, costbasis=0, t=4), 100, t=8) 
+        >>> lot.get_total_amount_for_security(USD, t=10)
+        100
         """
         valid_transactions = [tran for tran in self._transactions if tran.t < t and tran.security == security]
         balance = 0
