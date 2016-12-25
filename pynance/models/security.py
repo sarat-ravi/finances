@@ -154,9 +154,52 @@ class Lot(object):
             self.security = params[0].security if self.transaction_type == "add" else params[0]
             self.amount = params[1]
 
+        def is_add(self):
+            return self.transaction_type == "add"
+
+        def is_remove(self):
+            return self.transaction_type == "remove"
+
+        def get_spot(self):
+            if not self.is_add():
+                raise ValueError("Can only get spot for an add transaction")
+
+            spot = self.params[0]
+            assert isinstance(spot, Lot.Spot)
+            return spot
+
     def __init__(self):
         super(Lot, self).__init__()
         self._transactions = []
+
+    def get_lot_as_dict(self, t):
+        """
+        Return the lot as a dict of <Spot> ==> <Number> to describe how much amount is in every spot,
+        until but not including the specified 't'.
+        """
+        lot = defaultdict(int)
+
+        valid_transactions = [tran for tran in self._transactions if tran.t < t]
+        add_transactions = [tran for tran in valid_transactions if tran.is_add()]
+        remove_transactions = [tran for tran in valid_transactions if tran.is_remove()]
+
+        for transaction in add_transactions:
+            lot[transaction.get_spot()] += transaction.amount
+
+        left_to_remove = defaultdict(int)
+        for transaction in remove_transactions:
+            left_to_remove[transaction.security] += transaction.amount
+
+        fifo_sorted_spots = sorted(lot.keys(), cmp=lambda x, y: x.t - y.t)
+        for spot in fifo_sorted_spots:
+            to_remove = min(left_to_remove[spot.security], spot.amount) 
+            lot[spot] -= to_remove
+            left_to_remove[spot.security] -= to_remove
+            assert left_to_remove[spot.security] >= 0
+            if lot[spot] == 0:
+                del lot[spot]
+
+        return lot
 
     def add(self, spot, amount, t):
         """
@@ -203,7 +246,7 @@ class Lot(object):
         valid_transactions = [tran for tran in self._transactions if tran.t < t and tran.security == security]
         balance = 0
         for transaction in valid_transactions:
-            if transaction.transaction_type == "add":
+            if transaction.is_add():
                 balance = balance + transaction.amount
             else:
                 balance = balance - transaction.amount

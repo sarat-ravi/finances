@@ -57,6 +57,20 @@ class TestAmounts:
         assert_equals(0.5 * ten, Amount(5, USD))
         assert_equals(ten * 0.4, Amount(4, USD))
 
+    def test_amount_addition_with_primitives(self):
+        assert_equals(Amount(100, USD) + 10, Amount(110, USD))
+        assert_equals(Amount(100, USD) + 7.5, Amount(107.5, USD))
+
+        assert_equals(10 + Amount(100, USD), Amount(110, USD))
+        assert_equals(7.5 + Amount(100, USD), Amount(107.5, USD))
+
+    def test_amount_subtraction_with_primitives(self):
+        assert_equals(Amount(100, USD) - 10, Amount(90, USD))
+        assert_equals(Amount(100, USD) - 7.5, Amount(92.5, USD))
+
+        assert_equals(100 - Amount(10, USD), Amount(90, USD))
+        assert_equals(100 - Amount(7.5, USD), Amount(92.5, USD))
+
     def test_amount_addition(self):
         one = Amount(1, USD)
         ten = Amount(10, USD)
