@@ -21,6 +21,9 @@ class Account(object):
     def get_total_amount_for_security(self, security, t):
         return self._lot.get_total_amount_for_security(security, t)
 
+    def get_lot_as_dict(self, t):
+        return self._lot.get_lot_as_dict(t)
+
 
 class BrokerageAccount(Account):
     pass

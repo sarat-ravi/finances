@@ -13,6 +13,33 @@ class TestBrokerageAccount:
         for security, amount in amounts:
             assert_equals(b.get_total_amount_for_security(security, t), amount)
 
+    def assert_lots(self, lot, expected_lot):
+        assert_equals(len(lot), len(expected_lot))
+
+        for spot, expected_value in expected_lot.iteritems():
+            assert_equals(lot[spot], expected_value)
+
+    def test_adding_and_getting_lot_as_dict(self):
+        t = 0
+        # Spot can differ by both costbasis and by t!
+        spot_a = Lot.Spot(USD, 0, t+1)
+        spot_b = Lot.Spot(USD, 1, t+1)
+        spot_c = Lot.Spot(USD, 2, t+1)
+        spot_d = Lot.Spot(USD, 0, t+2)
+        spot_e = Lot.Spot(USD, 0, t+2)
+        spot_e = Lot.Spot(USD, 3, t+3)
+
+        b = BrokerageAccount('Schwab')
+        b.add(spot_a, 100, t+5)
+        b.add(spot_b, 200, t+5)
+        b.add(spot_c, 300, t+5)
+        b.add(spot_d, 400, t+5)
+        b.add(spot_e, 500, t+5)
+
+        expected_lot = {spot_a: 100, spot_b: 200, spot_c: 300, spot_d: 400, spot_e: 500}
+        self.assert_lots(b.get_lot_as_dict(t=10), expected_lot)
+        
+
     def test_basic_lot_removal(self):
         t = 0
         b = BrokerageAccount('Schwab')

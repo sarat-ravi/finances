@@ -192,7 +192,7 @@ class Lot(object):
 
         fifo_sorted_spots = sorted(lot.keys(), cmp=lambda x, y: x.t - y.t)
         for spot in fifo_sorted_spots:
-            to_remove = min(left_to_remove[spot.security], spot.amount) 
+            to_remove = min(left_to_remove[spot.security], lot[spot]) 
             lot[spot] -= to_remove
             left_to_remove[spot.security] -= to_remove
             assert left_to_remove[spot.security] >= 0
