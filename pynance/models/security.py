@@ -190,10 +190,16 @@ class Lot(object):
         for transaction in remove_transactions:
             left_to_remove[transaction.security] += transaction.amount
 
-        fifo_sorted_spots = sorted(lot.keys(), cmp=lambda x, y: x.t - y.t)
+        # NOTE: Behavior when times are the same between two spots is undefined! The amount may
+        # be deducted from any of the spots non-deterministically
+        def comparator(x, y):
+            return x.t - y.t
+
+        fifo_sorted_spots = sorted(lot.keys(), cmp=comparator)
         for spot in fifo_sorted_spots:
             to_remove = min(left_to_remove[spot.security], lot[spot]) 
             lot[spot] -= to_remove
+            print "removing {} from {}".format(to_remove, spot)
             left_to_remove[spot.security] -= to_remove
             assert left_to_remove[spot.security] >= 0
             if lot[spot] == 0:
