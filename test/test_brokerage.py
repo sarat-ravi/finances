@@ -68,7 +68,6 @@ class TestBrokerageAccount:
         expected_lot = {spot_a: 50, spot_b: 200, spot_c: 300, spot_d: 400, spot_e: 500, spot_f: 600}
         self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
 
-        """
         b.remove(USD, 100, t=10, mode=Lot.WITHDRAW_MODE_FIFO)
         expected_lot = {spot_b: 200, spot_c: 250, spot_d: 400, spot_e: 500, spot_f: 600}
         self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
@@ -80,7 +79,6 @@ class TestBrokerageAccount:
         b.remove(USD, 300, t=10, mode=Lot.WITHDRAW_MODE_FIFO)
         expected_lot = {spot_b: 200, spot_d: 400, spot_e: 500, spot_f: 500}
         self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
-        """
 
 
     def test_basic_lot_removal(self):
