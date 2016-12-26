@@ -263,7 +263,11 @@ class Lot(object):
         A spot contains information to categorize one or more assets for tax purposes.
         """
 
-        def __init__(self, security, costbasis, t, flags=0):
+        SPOT_TYPE_DEFAULT = 0
+        SPOT_TYPE_INCOME = 1
+        SPOT_TYPE_CAPITAL_GAIN = 2
+
+        def __init__(self, security, costbasis, t, spot_type=SPOT_TYPE_DEFAULT):
             super(Lot.Spot, self).__init__()
 
             # information that uniquely describes this spot.
@@ -272,11 +276,11 @@ class Lot(object):
             self.t = t
 
             # misc flags
-            self.flags = flags
+            self.spot_type = spot_type
 
         def __hash__(self):
             return hash((self.security, self.costbasis, self.t))
 
         def __repr__(self):
-            return "Spot(sec={}, cb={}, t={}), flags={}".format(self.security, self.costbasis, self.t, self.flags)
+            return "Spot(sec={}, cb={}, t={}, spot_type={})".format(self.security, self.costbasis, self.t, self.spot_type)
 
