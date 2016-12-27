@@ -1,5 +1,6 @@
-from pynance.models import BrokerageAccount, USD, INR, MYR, Lot
+from pynance.models import BrokerageAccount, USD, INR, MYR, Lot, Amount
 from nose.tools import assert_equals
+from pynance.market import Market, StaticMarketModel 
 
 class TestBrokerageAccount:
 
@@ -19,9 +20,28 @@ class TestBrokerageAccount:
         for key, expected_value in expected_dict.iteritems():
             assert_equals(actual_dict[key], expected_value)
 
+    def test_getting_total_value_of_account(self):
+        t = 0
+
+        market = Market("NYSE")
+        static_model = StaticMarketModel("multiplyByTenModel", 10)
+        market.add_market_model(static_model, 1)
+
+        b = BrokerageAccount('Schwab', market)
+        b.add(Lot.Spot(USD, 0, t+1), 100, t+5)
+        b.add(Lot.Spot(MYR, 1, t+1), 200, t+10)
+        b.add(Lot.Spot(USD, 2, t+1), 300, t+20)
+        b.add(Lot.Spot(MYR, 0, t+2), 400, t+30)
+        b.add(Lot.Spot(USD, 0, t+2), 500, t+40)
+
+        assert_equals(b.get_value_amount_of_account_in_security(USD, t=0), 0)
+        assert_equals(b.get_value_amount_of_account_in_security(USD, t=6), Amount(100, USD))
+        assert_equals(b.get_value_amount_of_account_in_security(USD, t=11), Amount(2100, USD))
+        assert_equals(b.get_value_amount_of_account_in_security(USD, t=50), Amount(6900, USD))
+
+
     def test_getting_securities_counter_from_lot(self):
         t = 0
-        # Spot can differ by both costbasis and by t!
         spot_a = Lot.Spot(USD, 0, t+1)
         spot_b = Lot.Spot(MYR, 1, t+1)
         spot_c = Lot.Spot(USD, 2, t+1)

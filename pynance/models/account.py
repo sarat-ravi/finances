@@ -1,4 +1,4 @@
-from pynance.models.security import USD, Amount, Lot
+from pynance.models.security import USD, Amount, Lot, Security
 from pynance.market.market import Market
 
 class Account(object):
@@ -39,10 +39,23 @@ class BrokerageAccount(Account):
         self.market = market
         assert self.market == None or isinstance(self.market, Market)
 
-    def get_value_amount_of_account_in_security(self, security):
+    def get_value_amount_of_account_in_security(self, security, t):
         assert isinstance(security, Security)
-        total_value = 0
+        if not isinstance(self.market, Market):
+            raise AttributeError("Market attribute not specified")
+
+        total_amount = 0
         
+        securities_dict = self.get_securities_dict(t)
+        for sec, quantity in securities_dict.iteritems():
+            if sec == security:
+                total_amount += Amount(quantity, sec)
+            else:
+                quote_amount = self.market.quote(Amount(quantity, sec), security, t)
+                total_amount += quote_amount
+
+        assert total_amount == 0 or isinstance(total_amount, Amount)
+        return total_amount
 
 
 class BankAccount(Account):
