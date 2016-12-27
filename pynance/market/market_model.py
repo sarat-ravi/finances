@@ -1,4 +1,4 @@
-from pynance.models import Security, Amount
+from pynance.models.security import Security, Amount
 
 class MarketModel(object):
     """

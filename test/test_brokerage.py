@@ -13,11 +13,33 @@ class TestBrokerageAccount:
         for security, amount in amounts:
             assert_equals(b.get_total_amount_for_security(security, t), amount)
 
-    def assert_lots(self, lot, expected_lot):
-        assert_equals(len(lot), len(expected_lot))
+    def assert_dicts(self, actual_dict, expected_dict):
+        assert_equals(len(actual_dict), len(expected_dict))
 
-        for spot, expected_value in expected_lot.iteritems():
-            assert_equals(lot[spot], expected_value)
+        for key, expected_value in expected_dict.iteritems():
+            assert_equals(actual_dict[key], expected_value)
+
+    def test_getting_securities_counter_from_lot(self):
+        t = 0
+        # Spot can differ by both costbasis and by t!
+        spot_a = Lot.Spot(USD, 0, t+1)
+        spot_b = Lot.Spot(MYR, 1, t+1)
+        spot_c = Lot.Spot(USD, 2, t+1)
+        spot_d = Lot.Spot(MYR, 0, t+2)
+        spot_e = Lot.Spot(USD, 0, t+2)
+        spot_f = Lot.Spot(INR, 3, t+3)
+
+        b = BrokerageAccount('Schwab')
+        b.add(spot_a, 100, t+5)
+        b.add(spot_b, 200, t+5)
+        b.add(spot_c, 300, t+5)
+        b.add(spot_d, 400, t+5)
+        b.add(spot_e, 500, t+5)
+        b.add(spot_f, 600, t+5)
+
+        expected_dict = {USD: 900, MYR: 600, INR: 600}
+        self.assert_dicts(b.get_securities_dict(t=10), expected_dict)
+
 
     def test_adding_and_getting_lot_as_dict(self):
         t = 0
@@ -27,7 +49,6 @@ class TestBrokerageAccount:
         spot_c = Lot.Spot(USD, 2, t+1)
         spot_d = Lot.Spot(USD, 0, t+2)
         spot_e = Lot.Spot(USD, 0, t+2)
-        spot_e = Lot.Spot(USD, 3, t+3)
 
         b = BrokerageAccount('Schwab')
         b.add(spot_a, 100, t+5)
@@ -37,7 +58,7 @@ class TestBrokerageAccount:
         b.add(spot_e, 500, t+5)
 
         expected_lot = {spot_a: 100, spot_b: 200, spot_c: 300, spot_d: 400, spot_e: 500}
-        self.assert_lots(b.get_lot_as_dict(t=10), expected_lot)
+        self.assert_dicts(b.get_lot_as_dict(t=10), expected_lot)
 
     def test_adding_and_getting_lot_as_dict(self):
         t = 0
@@ -62,23 +83,23 @@ class TestBrokerageAccount:
 
         # Test that the dict didn't change before the remove transaction was made
         expected_lot_in_past = {spot_a: 100, spot_b: 200, spot_c: 300, spot_d: 400, spot_e: 500, spot_f: 600}
-        self.assert_lots(b.get_lot_as_dict(t=10), expected_lot_in_past)
+        self.assert_dicts(b.get_lot_as_dict(t=10), expected_lot_in_past)
 
         # Test the dict's final state.
         expected_lot = {spot_a: 50, spot_b: 200, spot_c: 300, spot_d: 400, spot_e: 500, spot_f: 600}
-        self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
+        self.assert_dicts(b.get_lot_as_dict(t=20), expected_lot)
 
         b.remove(USD, 100, t=10, mode=Lot.WITHDRAW_MODE_FIFO)
         expected_lot = {spot_b: 200, spot_c: 250, spot_d: 400, spot_e: 500, spot_f: 600}
-        self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
+        self.assert_dicts(b.get_lot_as_dict(t=20), expected_lot)
 
         b.remove(USD, 50, t=10, mode=Lot.WITHDRAW_MODE_FIFO)
         expected_lot = {spot_b: 200, spot_c: 200, spot_d: 400, spot_e: 500, spot_f: 600}
-        self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
+        self.assert_dicts(b.get_lot_as_dict(t=20), expected_lot)
 
         b.remove(USD, 300, t=10, mode=Lot.WITHDRAW_MODE_FIFO)
         expected_lot = {spot_b: 200, spot_d: 400, spot_e: 500, spot_f: 500}
-        self.assert_lots(b.get_lot_as_dict(t=20), expected_lot)
+        self.assert_dicts(b.get_lot_as_dict(t=20), expected_lot)
 
 
     def test_basic_lot_removal(self):

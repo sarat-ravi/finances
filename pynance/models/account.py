@@ -1,4 +1,5 @@
 from pynance.models.security import USD, Amount, Lot
+from pynance.market.market import Market
 
 class Account(object):
 
@@ -24,9 +25,24 @@ class Account(object):
     def get_lot_as_dict(self, t):
         return self._lot.get_lot_as_dict(t)
 
+    def get_securities_dict(self, t):
+        return self._lot.get_securities_dict(t)
+
 
 class BrokerageAccount(Account):
-    pass
+
+    def __init__(self, name, market=None):
+        """
+        Optionally pass in a Market object to get the worth of a portfolio in a specific security.
+        """
+        super(BrokerageAccount, self).__init__(name)
+        self.market = market
+        assert self.market == None or isinstance(self.market, Market)
+
+    def get_value_amount_of_account_in_security(self, security):
+        assert isinstance(security, Security)
+        total_value = 0
+        
 
 
 class BankAccount(Account):

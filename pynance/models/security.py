@@ -172,6 +172,18 @@ class Lot(object):
         super(Lot, self).__init__()
         self._transactions = []
 
+    def get_securities_dict(self, t):
+        """
+        Return a dict of <Security> ==> <Number> to describe how much of every security is there.
+        """
+        securities = defaultdict(int)
+        lot_dict = self.get_lot_as_dict(t=t)
+
+        for spot, quantity in lot_dict.iteritems():
+            securities[spot.security] += quantity
+
+        return securities
+
     def get_lot_as_dict(self, t):
         """
         Return the lot as a dict of <Spot> ==> <Number> to describe how much amount is in every spot,

@@ -1,5 +1,6 @@
 from pynance.market.market_model import MarketModel
-from pynance.models import Amount, MYR, Security
+from pynance.models.account import Amount
+from pynance.models.security import MYR, Security
 from decimal import Decimal
 
 class Market(object):
