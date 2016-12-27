@@ -36,12 +36,16 @@ class BrokerageAccount(Account):
         Optionally pass in a Market object to get the worth of a portfolio in a specific security.
         """
         super(BrokerageAccount, self).__init__(name)
-        self.market = market
-        assert self.market == None or isinstance(self.market, Market)
+        self._market = market
+        assert self._market == None or isinstance(self._market, Market)
+
+    def set_market(self, market):
+        assert isinstance(market, Market)
+        self._market = market
 
     def get_value_amount_of_account_in_security(self, security, t):
         assert isinstance(security, Security)
-        if not isinstance(self.market, Market):
+        if not isinstance(self._market, Market):
             raise AttributeError("Market attribute not specified")
 
         total_amount = 0
@@ -51,7 +55,7 @@ class BrokerageAccount(Account):
             if sec == security:
                 total_amount += Amount(quantity, sec)
             else:
-                quote_amount = self.market.quote(Amount(quantity, sec), security, t)
+                quote_amount = self._market.quote(Amount(quantity, sec), security, t)
                 total_amount += quote_amount
 
         assert total_amount == 0 or isinstance(total_amount, Amount)
